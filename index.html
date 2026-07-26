@@ -1,28 +1,45 @@
-<div id="startModal" class="start-modal">
-    <div class="start-box">
-        <h2>📢 시작 전 안내</h2>
-
-        <ul>
-            <li>모든 칸을 채운 후 제출하세요.</li>
-            <li>각 행, 열에는 1~9가 한 번씩만 들어갑니다.</li>
-            <li>같은 색 영역의 숫자 합은 왼쪽 위 숫자와 같아야 합니다.</li>
-            <li>제출 후에는 수정할 수 없습니다.</li>
-            <li>'지우기'버튼은 파란색으로 표시된 곳만 지워집니다.</li>
-        </ul>
-
-        <button onclick="startGame()">시작하기</button>
-    </div>
-</div>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>백현중 R&E 7-8월 행사 - 스도쿠</title>
+    <title>일반 스도쿠 챌린지 (1/2)</title>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f4f4f9; margin: 0; padding: 20px; }
-        h1 { color: #333; margin-bottom: 5px; }
-        .step { color: #6c757d; font-size: 15px; margin-bottom: 15px; }
+        h1 { color: #333; margin-bottom: 5px; text-align: center; }
+        .step { color: #6c757d; font-size: 15px; margin-bottom: 20px; text-align: center; }
+
+        /* ===== 주의사항 화면 ===== */
+        .notice-card {
+            background-color: #fff;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 25px 30px;
+            max-width: 520px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .notice-card h2 { margin: 0 0 15px 0; font-size: 20px; color: #007bff; }
+        .notice-card ol { margin: 0; padding-left: 22px; line-height: 1.9; font-size: 16px; color: #333; }
+        .notice-card li { margin-bottom: 6px; }
+        .notice-card .warn { margin-top: 18px; padding: 12px 15px; background-color: #fff3cd; border-radius: 6px; font-size: 15px; color: #856404; line-height: 1.7; }
+        .start-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 16px 60px;
+            font-size: 19px;
+            font-weight: bold;
+            font-family: inherit;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .start-btn:hover { background-color: #0069d9; }
+
+        /* ===== 게임 화면 ===== */
+        #game-screen { display: none; flex-direction: column; align-items: center; }
         .user-info { display: flex; gap: 10px; margin-bottom: 15px; }
         .user-info input { padding: 10px; font-size: 16px; border: 2px solid #ccc; border-radius: 5px; width: 140px; text-align: center; }
         .user-info input:focus { outline: none; border-color: #007bff; }
@@ -38,34 +55,63 @@
         .cell.selected { background-color: #b3d4ff; border: 2px solid #007bff; z-index: 10; }
         .numpad { display: grid; grid-template-columns: repeat(3, 70px); gap: 10px; margin-bottom: 20px; }
         .numpad button { width: 70px; height: 50px; font-size: 20px; border: none; background-color: #007bff; color: white; border-radius: 8px; cursor: pointer; }
+
+        /* 주의사항 다시 보기 링크 */
+        .notice-again { background: none; border: none; color: #007bff; font-size: 14px; font-family: inherit; cursor: pointer; text-decoration: underline; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>🧩 R&E 7월 행사 - 스도쿠</h1>
-    <div class="step">1단계 / 2단계 · 제출하면 킬러 스도쿠로 넘어갑니다</div>
 
-<div class="user-info">
-    <input type="text" id="student-id" placeholder="학번 (예: 10101)">
-    <input type="text" id="student-name" placeholder="이름 (예: 홍길동)">
+<h1>🧩 일반 스도쿠 챌린지</h1>
+<div class="step">1단계 / 2단계</div>
+
+<!-- ===== 주의사항 화면 ===== -->
+<div id="notice-screen">
+    <div class="notice-card">
+        <h2>📋 참여 전 확인해 주세요</h2>
+        <ol>
+            <li>학번과 이름을 정확히 입력해야 기록이 남습니다.</li>
+            <li>빈칸을 클릭한 뒤 아래 숫자판이나 키보드 숫자키로 입력합니다.</li>
+            <li>지울 때는 '지우기' 버튼 또는 Backspace 키를 누릅니다.</li>
+            <li>모든 칸을 채워야 다음 단계로 넘어갈 수 있습니다.</li>
+            <li>일반 스도쿠를 마치면 킬러 스도쿠가 이어서 나옵니다.</li>
+            <li>두 스도쿠를 모두 제출하면 최종 기록이 완료됩니다.</li>
+        </ol>
+        <div class="warn">
+            ⚠️ 진행 중에 브라우저 탭을 닫거나 새로 고침하면 입력한 내용이 사라집니다.
+            끝까지 한 번에 진행해 주세요.
+        </div>
+    </div>
+    <button class="start-btn" onclick="startGame()">시작하기</button>
 </div>
 
-<div class="sudoku-board" id="board"></div>
+<!-- ===== 게임 화면 ===== -->
+<div id="game-screen">
+    <button class="notice-again" onclick="showNotice()">주의사항 다시 보기</button>
 
-<div class="numpad">
-    <button onclick="inputNumber(1)">1</button>
-    <button onclick="inputNumber(2)">2</button>
-    <button onclick="inputNumber(3)">3</button>
-    <button onclick="inputNumber(4)">4</button>
-    <button onclick="inputNumber(5)">5</button>
-    <button onclick="inputNumber(6)">6</button>
-    <button onclick="inputNumber(7)">7</button>
-    <button onclick="inputNumber(8)">8</button>
-    <button onclick="inputNumber(9)">9</button>
-</div>
+    <div class="user-info">
+        <input type="text" id="student-id" placeholder="학번 (예: 10101)">
+        <input type="text" id="student-name" placeholder="이름 (예: 홍길동)">
+    </div>
 
-<div class="controls">
-    <button onclick="clearCell()">지우기</button>
-    <button class="submit" onclick="submitSudoku()">다음 단계로</button>
+    <div class="sudoku-board" id="board"></div>
+
+    <div class="numpad">
+        <button onclick="inputNumber(1)">1</button>
+        <button onclick="inputNumber(2)">2</button>
+        <button onclick="inputNumber(3)">3</button>
+        <button onclick="inputNumber(4)">4</button>
+        <button onclick="inputNumber(5)">5</button>
+        <button onclick="inputNumber(6)">6</button>
+        <button onclick="inputNumber(7)">7</button>
+        <button onclick="inputNumber(8)">8</button>
+        <button onclick="inputNumber(9)">9</button>
+    </div>
+
+    <div class="controls">
+        <button onclick="clearCell()">지우기</button>
+        <button class="submit" onclick="submitSudoku()">다음 단계로</button>
+    </div>
 </div>
 
 <script>
@@ -87,7 +133,26 @@
     ];
 
     let selectedCellIndex = null;
+    let boardReady = false;
 
+    /* ===== 화면 전환 ===== */
+    function startGame() {
+        document.getElementById('notice-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        if (!boardReady) {
+            initBoard();
+            boardReady = true;
+        }
+        document.getElementById('student-id').focus();
+    }
+
+    function showNotice() {
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('notice-screen').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    /* ===== 스도쿠 판 ===== */
     function initBoard() {
         const boardEl = document.getElementById('board');
         for (let i = 0; i < 81; i++) {
@@ -105,7 +170,7 @@
         restoreProgress();
     }
 
-    // 킬러 스도쿠에서 '뒤로 가기'로 돌아온 경우 입력했던 내용을 되살립니다
+    // 킬러 스도쿠에서 '돌아가기'로 온 경우 입력했던 내용을 되살립니다
     function restoreProgress() {
         const saved = sessionStorage.getItem(STORAGE_KEY);
         if (!saved) return;
@@ -143,6 +208,7 @@
     // PC 키보드 입력
     window.addEventListener('keydown', function(event) {
         if (document.activeElement.tagName === 'INPUT') return;
+        if (document.getElementById('game-screen').style.display === 'none') return;
         if (selectedCellIndex !== null) {
             if (event.key >= '1' && event.key <= '9') {
                 inputNumber(event.key);
@@ -178,11 +244,16 @@
             answer: studentAnswer
         }));
 
-        alert(`✅ 1단계 저장 완료!\n${studentId} ${studentName} 학생, 이제 킬러 스도쿠에 도전하세요.`);
+        alert("✅ 1단계 저장 완료!\n" + studentId + " " + studentName + " 학생, 이제 킬러 스도쿠에 도전하세요.");
         window.location.href = NEXT_PAGE;
     }
 
-    window.onload = initBoard;
+    window.onload = function() {
+        // 킬러 스도쿠에서 돌아온 경우에는 주의사항을 건너뛰고 바로 판을 보여줍니다
+        if (sessionStorage.getItem(STORAGE_KEY)) {
+            startGame();
+        }
+    };
 </script>
 </body>
 </html>
