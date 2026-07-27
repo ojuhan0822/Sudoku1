@@ -63,7 +63,7 @@
 <body>
 
 <h1>🧩 일반 스도쿠 챌린지</h1>
-<div class="step">1단계 / 2단계</div>
+<div class="step">난이도: 보통</div>
 
 <!-- ===== 주의사항 화면 ===== -->
 <div id="notice-screen">
@@ -110,16 +110,28 @@
 
     <div class="controls">
         <button onclick="clearCell()">지우기</button>
-        <button class="submit" onclick="submitSudoku()">다음 단계로</button>
+        <button class="submit" onclick="submitSudoku()">제출하기</button>
     </div>
 </div>
 
 <script>
     /* ===== 설정 ===== */
-    // 킬러 스도쿠 파일 이름 (GitHub에 올린 실제 파일명과 같아야 합니다)
-    const NEXT_PAGE = "k_hard.html";
-    const STORAGE_KEY = "sudokuStage1";
 
+    // 💡 1. 현재 파일의 난이도를 설정하세요. ('easy', 'normal', 'hard' 중 하나로 입력)
+    const CURRENT_DIFFICULTY = 'easy'; // easy.html이면 'easy', hard.html이면 'hard'로 변경
+
+    // 💡 2. 구글 폼 URL과 모든 정답 entry 번호를 여기에 넣으세요!
+    const GOOGLE_FORM_URL = "https://forms.gle/rFFypReaouUGyFeu6"; 
+    const ENTRY_STUDENT_ID = "entry.739411276";   // 학번
+    const ENTRY_STUDENT_NAME = "entry.2089700400"; // 이름
+    
+    // (문항을 따로 만들었다고 하셨으니, 3개의 정답 entry 코드를 다 적어줍니다)
+    const ENTRY_EASY_ANSWER = "entry.1354150465";   // 쉬움 정답 문항
+    const ENTRY_NORMAL_ANSWER = "entry.1040167626"; // 보통 정답 문항
+    const ENTRY_HARD_ANSWER = "entry.987739919";   // 어려움 정답 문항
+
+    const STORAGE_KEY = "sudokuTotalProgress"; // 모든 데이터를 모아둘 공통 바구니 이름
+    
     const initialBoard = [
         2, 0, 5, 0, 0, 7, 0, 0, 6,
         4, 0, 0, 9, 6, 0, 0, 2, 0,
@@ -231,23 +243,60 @@
         for (let i = 0; i < 81; i++) {
             const cellText = document.getElementById('cell-' + i).innerText.trim();
             if (cellText === "") {
-                alert("⚠️ 스도쿠의 모든 빈칸을 채워야 다음 단계로 넘어갈 수 있습니다!");
+                alert("⚠️ 스도쿠의 모든 빈칸을 채워야 다음으로 넘어갈 수 있습니다!");
                 return;
             }
             studentAnswer += cellText;
         }
 
-        // 구글폼 전송은 아직 하지 않고, 임시 저장만 합니다
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        // 1️⃣ 기존에 임시 저장된 데이터가 있는지 불러오기
+        let savedData = JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || {
             studentId: studentId,
             studentName: studentName,
-            answer: studentAnswer
-        }));
+            easy: "",
+            normal: "",
+            hard: ""
+        };
 
-        alert("✅ 1단계 저장 완료!\n" + studentId + " " + studentName + " 학생, 이제 킬러 스도쿠에 도전하세요.");
-        window.location.href = NEXT_PAGE;
+        // 2️⃣ 학번, 이름 갱신 및 이번에 푼 '현재 난이도'의 정답만 추가로 저장
+        savedData.studentId = studentId;
+        savedData.studentName = studentName;
+        savedData[CURRENT_DIFFICULTY] = studentAnswer; // easy, normal, hard 중 하나에 저장됨
+
+        // 브라우저에 통합 데이터 임시 저장
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+
+        // 3️⃣ 사용자에게 물어보기 (확인=true, 취소=false 반환)
+        const wantMore = confirm("✅ 현재 난이도 임시 저장 완료!\n\n더 어려운 난이도(또는 다른 난이도)도 이어서 도전하시겠습니까?\n\n[확인] 눌러서 다른 난이도 도전하기\n[취소] 눌러서 최종 제출하고 끝내기");
+
+        if (wantMore) {
+            // [확인]을 누른 경우: 폼에 전송하지 않고 메인 화면(index.html)으로 이동
+            window.location.href = "index.html";
+        } else {
+            // [취소]를 누른 경우: 임시 저장된 모든 데이터를 긁어모아서 구글 폼으로 진짜 전송!
+            const formData = new FormData();
+            formData.append(ENTRY_STUDENT_ID, savedData.studentId);
+            formData.append(ENTRY_STUDENT_NAME, savedData.studentName);
+            
+            // 데이터가 있는(풀었던) 난이도만 폼에 담기
+            if (savedData.easy !== "") formData.append(ENTRY_EASY_ANSWER, savedData.easy);
+            if (savedData.normal !== "") formData.append(ENTRY_NORMAL_ANSWER, savedData.normal);
+            if (savedData.hard !== "") formData.append(ENTRY_HARD_ANSWER, savedData.hard);
+
+            fetch(GOOGLE_FORM_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            }).then(() => {
+                alert("🎉 모든 데이터가 성공적으로 최종 제출되었습니다!\n행사에 참여해 주셔서 감사합니다.");
+                sessionStorage.removeItem(STORAGE_KEY); // 제출했으니 임시 저장소 깨끗하게 비우기
+                window.location.href = "index.html"; 
+            }).catch((error) => {
+                alert("❌ 제출 중 오류가 발생했습니다. 다시 시도해 주세요.");
+                console.error(error);
+            });
+        }
     }
-
     window.onload = function() {
         // 킬러 스도쿠에서 돌아온 경우에는 주의사항을 건너뛰고 바로 판을 보여줍니다
         if (sessionStorage.getItem(STORAGE_KEY)) {
