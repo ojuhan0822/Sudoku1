@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>스도쿠 난이도 선택</title>
+    <style>
+        /* 화면을 가운데 정렬하고 여백을 줍니다 */
+        body {
+            text-align: center;
+            font-family: '맑은 고딕', sans-serif;
+            margin-top: 100px;
+        }
+
+        /* 버튼들의 기본 디자인 */
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            margin: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            text-decoration: none; /* 링크 밑줄 없애기 */
+            color: white; /* 글자색 흰색 */
+            border-radius: 10px; /* 버튼 모서리를 둥글게 */
+        }
+
+        /* 버튼마다 다른 배경색 지정 */
+        .easy { background-color: #4CAF50; } /* 초록색 */
+        .normal { background-color: #FF9800; } /* 주황색 */
+        .hard { background-color: #F44336; } /* 빨간색 */
+        
+        /* 마우스를 올렸을 때 버튼이 살짝 투명해지는 효과 */
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 학교 행사 스도쿠 대회 🏆</h1>
+    <h2>원하는 난이도를 선택해 주세요!</h2>
+
+    <a href="easy.html" class="btn easy">쉬움 (Easy)</a>
+    <a href="normal.html" class="btn normal">보통 (Normal)</a>
+    <a href="hard.html" class="btn hard">어려움 (Hard)</a>
+
+</body>
+</html>
